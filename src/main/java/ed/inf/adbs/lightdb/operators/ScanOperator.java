@@ -26,11 +26,17 @@ public class ScanOperator extends Operator{
      * @return An array of String referring to one tuple.
      */
     @Override
-    public String[] getNextTuple() {
+    public int[] getNextTuple() {
         try {
             String str;
-            if ((str = bufferedReader.readLine()) != null)
-                return str.split(",");
+            if ((str = bufferedReader.readLine()) != null) {
+                String[] temp = str.split(",");
+                int[] result = new int[temp.length];
+                for (int i = 0; i < temp.length; i++) {
+                    result[i] = Integer.parseInt(temp[i]);
+                }
+                return result;
+            }
         } catch (IOException e) {
             Logger logger = Logger.getGlobal();
             logger.severe(e.toString());
