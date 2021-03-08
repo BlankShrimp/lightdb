@@ -6,7 +6,7 @@ public abstract class Operator {
 
     public Operator() {}
 
-    public abstract String[] getNextTuple();
+    public abstract int[] getNextTuple();
 
     public void reset(){ index = 0; }
 }
