@@ -34,4 +34,13 @@ public class Catalog {
         String[] temp = column.split("\\.");
         return schema.get(temp[0]).get(temp[1]);
     }
+
+    public static int[] getColumnsIndex(String columns) {
+        String[] temp = columns.split(", ");
+        int[] result = new int[temp.length];
+        for (int i = 0; i < temp.length; i++) {
+            result[i] = getColumnIndex(temp[i]);
+        }
+        return result;
+    }
 }
