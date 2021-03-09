@@ -1,5 +1,7 @@
 package ed.inf.adbs.lightdb.operators;
 
+import ed.inf.adbs.lightdb.utils.Catalog;
+
 import java.util.List;
 import java.util.Map;
 
@@ -144,12 +146,12 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isEqual(String left, int right, int[] tuple) {
-        int index = Integer.parseInt(left);//TODO: 把这里的逻辑换成从Catalog获取index
+        int index = Catalog.getColumnIndex(left);
         return tuple[index] == right;
     }
 
     private boolean isEqual(int left, String right, int[] tuple) {
-        int index = Integer.parseInt(right);//TODO: 把这里的逻辑换成从Catalog获取index
+        int index = Catalog.getColumnIndex(right);
         return tuple[index] == left;
     }
 
@@ -158,8 +160,8 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isEqual(String left, String right, int[] tuple) {
-        int indexLeft = Integer.parseInt(left);//TODO: 把这里的逻辑换成从Catalog获取index
-        int indexRight = Integer.parseInt(right);//TODO: 把这里的逻辑换成从Catalog获取index
+        int indexLeft = Catalog.getColumnIndex(left);
+        int indexRight = Catalog.getColumnIndex(right);
         return tuple[indexLeft] == tuple[indexRight];
     }
 
@@ -176,12 +178,12 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreater(String left, int right, int[] tuple) {
-        int index = Integer.parseInt(left);//TODO: 把这里的逻辑换成从Catalog获取index
+        int index = Catalog.getColumnIndex(left);
         return tuple[index] > right;
     }
 
     private boolean isGreater(int left, String right, int[] tuple) {
-        int index = Integer.parseInt(right);//TODO: 把这里的逻辑换成从Catalog获取index
+        int index = Catalog.getColumnIndex(right);
         return left > tuple[index];
     }
 
@@ -190,8 +192,8 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreater(String left, String right, int[] tuple) {
-        int indexLeft = Integer.parseInt(left);//TODO: 把这里的逻辑换成从Catalog获取index
-        int indexRight = Integer.parseInt(right);//TODO: 把这里的逻辑换成从Catalog获取index
+        int indexLeft = Catalog.getColumnIndex(left);
+        int indexRight = Catalog.getColumnIndex(right);
         return tuple[indexLeft] > tuple[indexRight];
     }
 
@@ -208,12 +210,12 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreaterEqual(String left, int right, int[] tuple) {
-        int index = Integer.parseInt(left);//TODO: 把这里的逻辑换成从Catalog获取index
+        int index = Catalog.getColumnIndex(left);
         return tuple[index] >= right;
     }
 
     private boolean isGreaterEqual(int left, String right, int[] tuple) {
-        int index = Integer.parseInt(right);//TODO: 把这里的逻辑换成从Catalog获取index
+        int index = Catalog.getColumnIndex(right);
         return left >= tuple[index];
     }
 
@@ -222,8 +224,8 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreaterEqual(String left, String right, int[] tuple) {
-        int indexLeft = Integer.parseInt(left);//TODO: 把这里的逻辑换成从Catalog获取index
-        int indexRight = Integer.parseInt(right);//TODO: 把这里的逻辑换成从Catalog获取index
+        int indexLeft = Catalog.getColumnIndex(left);
+        int indexRight = Catalog.getColumnIndex(right);
         return tuple[indexLeft] >= tuple[indexRight];
     }
 }
