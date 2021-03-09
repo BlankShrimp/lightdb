@@ -1,5 +1,7 @@
 package ed.inf.adbs.lightdb.operators;
 
+import ed.inf.adbs.lightdb.utils.Catalog;
+
 import java.io.*;
 import java.util.logging.Logger;
 
@@ -8,9 +10,11 @@ public class ScanOperator extends Operator{
     private FileInputStream fis;
     private BufferedReader bufferedReader;
     private String filename;
+    private String tableName;
 
-    public ScanOperator(String filename) {
-        this.filename = filename;
+    public ScanOperator(String tableName) {
+        this.tableName = tableName;
+        this.filename = Catalog.getPath(tableName);
         try {
             fis = new FileInputStream(filename);
             bufferedReader = new BufferedReader(new InputStreamReader(fis));
@@ -18,6 +22,11 @@ public class ScanOperator extends Operator{
             Logger logger = Logger.getGlobal();
             logger.severe(e.toString());
         }
+    }
+
+    @Override
+    public String[] getColumnInfo() {
+        return Catalog.getColumnsIndex(tableName);
     }
 
     /**

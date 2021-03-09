@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 public class Catalog {
 
-    public static Map<String, Map<String, Integer>> schema = new HashMap<>();// TableName->(ColumnName->index)
+    public static Map<String, String[]> schema = new HashMap<>();// TableName->(ordered ColumnName)
     private static String pathToDB;
     private static String pathToWriteFile = "samples\\output\\output.csv";
 
@@ -28,9 +28,9 @@ public class Catalog {
             String str;
             while ((str=reader.readLine()) != null) {
                 String[] strings = str.split(" ");
-                Map<String, Integer> temp = new HashMap<>();
-                for (int i = 1; i < strings.length; i++) {
-                    temp.put(strings[i], i-1);
+                String[] temp = new String[strings.length];
+                for (int i = 0; i < strings.length; i++) {
+                    temp[i]=strings[i];
                 }
                 schema.put(strings[0], temp);
             }
@@ -45,40 +45,12 @@ public class Catalog {
     }
 
     /**
-     * Translate a column name to an integer. This function is primarily used in @SelectOperator.
-     * @param column String of column name.
-     * @return Integer of column index.
-     */
-    public static int getColumnIndex(String column) {
-        String[] temp = column.split("\\.");
-        return schema.get(temp[0]).get(temp[1]);
-    }
-
-    /**
      * Translate multiple column names to integers.
-     * @param columns String of column names.
-     * @return Array of column index.
+     * @param tableName String of column names.
+     * @return Array of column name.
      */
-    public static int[] getColumnsIndex(String columns) {
-        String[] temp = columns.split(", ");
-        int[] result = new int[temp.length];
-        for (int i = 0; i < temp.length; i++) {
-            result[i] = getColumnIndex(temp[i]);
-        }
-        return result;
-    }
-
-    /**
-     * Translate multiple column names to integers.
-     * @param columns List of column names.
-     * @return Array of column index.
-     */
-    public static int[] getColumnsIndex(List<SelectItem> columns) {
-        int[] result = new int[columns.size()];
-        for (int i = 0; i < columns.size(); i++) {
-            result[i] = getColumnIndex(columns.get(i).toString());
-        }
-        return result;
+    public static String[] getColumnsIndex(String tableName) {
+        return schema.get(tableName);
     }
 
     public static String getPath(String tableName) {

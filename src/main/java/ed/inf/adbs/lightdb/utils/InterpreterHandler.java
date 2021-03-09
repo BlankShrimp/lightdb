@@ -36,16 +36,19 @@ public class InterpreterHandler {
                 Select select = (Select) statement;
                 PlainSelect plain = (PlainSelect) select.getSelectBody();
 
+                //TODO: 在这里加入有关 join 的识别
+                // if (plain.getJoins()==null)
+
                 // First, get select items and where expression (if exists) from statement.
                 List<SelectItem> selectItems = plain.getSelectItems();
                 if (plain.getWhere()==null) {
                     // Handle simply scanning condition.
-                    TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-                    ScanOperator scanOperator = new ScanOperator(Catalog.getPath(tablesNamesFinder.getTableList(statement).get(0)));
+                    ScanOperator scanOperator = new ScanOperator(plain.getFromItem().toString());
                     if (selectItems.get(0).toString().equals("*")) {
                         writeToFile(scanOperator);
                     } else {
                         // Handle scanning but with projection.
+                        //TODO: 这里需要注意重命名
                         ProjectOperator projectOperator = new ProjectOperator(selectItems, scanOperator);
                         writeToFile(projectOperator);
                     }
@@ -59,6 +62,7 @@ public class InterpreterHandler {
                     Expression expression1;// sub-expressions to be met
                     if (list.size()>0) {
                         for (String s: list) {
+                            //TODO: 这里所有的 expression 都被无脑加入了 Selection 条件里，需要根据 join 做区分
                             expression1 = CCJSqlParserUtil.parseCondExpression(s);
                             LightExpressionVisitorAdapter adapter = new LightExpressionVisitorAdapter();
                             expression1.accept(adapter);
@@ -72,11 +76,12 @@ public class InterpreterHandler {
                         Map<String,String> map = adapter.getMap();
                         expressions.add(map);
                     }
-                    SelectOperator selectOperator = new SelectOperator(expressions, new ScanOperator("samples\\db\\data\\Boats.csv"));
+                    SelectOperator selectOperator = new SelectOperator(expressions, new ScanOperator(plain.getFromItem().toString()));
                     if (selectItems.get(0).toString().equals("*")) {
                         writeToFile(selectOperator);
                     } else {
                         // Handle scanning but with projection.
+                        //TODO:这里需要注意不是所有where clause都是标准的列名（比如Boats.R可能会以R）出现
                         ProjectOperator projectOperator = new ProjectOperator(selectItems, selectOperator);
                         writeToFile(projectOperator);
                     }
