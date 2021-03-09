@@ -75,6 +75,7 @@ public class SelectOperator extends Operator{
             if (temp != null) {
                 boolean flag = true;
                 for (int i=0;i<functionArray.length;i++) {
+                    // Call different functions regarding to different operators.
                     switch (functionArray[i]) {
                         case EQUAL:
                             if (!distinguishEqual(expressions.get(i).get("leftOp"),
