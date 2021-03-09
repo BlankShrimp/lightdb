@@ -153,21 +153,19 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isEqual(String left, int right, int[] tuple) {
-        int index = 1;
-        String tableName = columnIndex[0];
+        int index = 0;
         while (index < columnIndex.length) {
-            if ((tableName+"."+columnIndex[index]).equals(left))
+            if ((columnIndex[index]).equals(left))
                 break;
             index++;
         }
-        return tuple[index-1] == right;
+        return tuple[index] == right;
     }
 
     private boolean isEqual(int left, String right, int[] tuple) {
-        int index = 1;
-        String tableName = columnIndex[0];
+        int index = 0;
         while (index < columnIndex.length) {
-            if ((tableName+"."+columnIndex[index]).equals(right))
+            if ((columnIndex[index]).equals(right))
                 break;
             index++;
         }
@@ -179,16 +177,15 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isEqual(String left, String right, int[] tuple) {
-        int indexLeft = 1;
-        String tableName = columnIndex[0];
+        int indexLeft = 0;
         while (indexLeft < columnIndex.length) {
-            if ((tableName+"."+columnIndex[indexLeft]).equals(left))
+            if ((columnIndex[indexLeft]).equals(left))
                 break;
             indexLeft++;
         }
-        int indexRight = 1;
+        int indexRight = 0;
         while (indexRight < columnIndex.length) {
-            if ((tableName+"."+columnIndex[indexRight]).equals(right))
+            if ((columnIndex[indexRight]).equals(right))
                 break;
             indexRight++;
         }
@@ -208,10 +205,9 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreater(String left, int right, int[] tuple) {
-        int index = 1;
-        String tableName = columnIndex[0];
+        int index = 0;
         while (index < columnIndex.length) {
-            if ((tableName+"."+columnIndex[index]).equals(left))
+            if ((columnIndex[index]).equals(left))
                 break;
             index++;
         }
@@ -219,10 +215,9 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreater(int left, String right, int[] tuple) {
-        int index = 1;
-        String tableName = columnIndex[0];
+        int index = 0;
         while (index < columnIndex.length) {
-            if ((tableName+"."+columnIndex[index]).equals(right))
+            if ((columnIndex[index]).equals(right))
                 break;
             index++;
         }
@@ -234,16 +229,15 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreater(String left, String right, int[] tuple) {
-        int indexLeft = 1;
-        String tableName = columnIndex[0];
+        int indexLeft = 0;
         while (indexLeft < columnIndex.length) {
-            if ((tableName+"."+columnIndex[indexLeft]).equals(left))
+            if ((columnIndex[indexLeft]).equals(left))
                 break;
             indexLeft++;
         }
-        int indexRight = 1;
+        int indexRight = 0;
         while (indexRight < columnIndex.length) {
-            if ((tableName+"."+columnIndex[indexRight]).equals(right))
+            if ((columnIndex[indexRight]).equals(right))
                 break;
             indexRight++;
         }
@@ -263,10 +257,9 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreaterEqual(String left, int right, int[] tuple) {
-        int index = 1;
-        String tableName = columnIndex[0];
+        int index = 0;
         while (index < columnIndex.length) {
-            if ((tableName+"."+columnIndex[index]).equals(left))
+            if ((columnIndex[index]).equals(left))
                 break;
             index++;
         }
@@ -274,10 +267,9 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreaterEqual(int left, String right, int[] tuple) {
-        int index = 1;
-        String tableName = columnIndex[0];
+        int index = 0;
         while (index < columnIndex.length) {
-            if ((tableName+"."+columnIndex[index]).equals(right))
+            if ((columnIndex[index]).equals(right))
                 break;
             index++;
         }
@@ -289,16 +281,15 @@ public class SelectOperator extends Operator{
     }
 
     private boolean isGreaterEqual(String left, String right, int[] tuple) {
-        int indexLeft = 1;
-        String tableName = columnIndex[0];
+        int indexLeft = 0;
         while (indexLeft < columnIndex.length) {
-            if ((tableName+"."+columnIndex[indexLeft]).equals(left))
+            if ((columnIndex[indexLeft]).equals(left))
                 break;
             indexLeft++;
         }
-        int indexRight = 1;
+        int indexRight = 0;
         while (indexRight < columnIndex.length) {
-            if ((tableName+"."+columnIndex[indexRight]).equals(right))
+            if ((columnIndex[indexRight]).equals(right))
                 break;
             indexRight++;
         }

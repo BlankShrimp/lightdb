@@ -28,9 +28,9 @@ public class Catalog {
             String str;
             while ((str=reader.readLine()) != null) {
                 String[] strings = str.split(" ");
-                String[] temp = new String[strings.length];
-                for (int i = 0; i < strings.length; i++) {
-                    temp[i]=strings[i];
+                String[] temp = new String[strings.length-1];
+                for (int i = 1; i < strings.length; i++) {
+                    temp[i-1]=strings[0]+"."+strings[i];
                 }
                 schema.put(strings[0], temp);
             }
