@@ -1,11 +1,9 @@
 package ed.inf.adbs.lightdb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
+import ed.inf.adbs.lightdb.operators.JoinOperator;
 import ed.inf.adbs.lightdb.operators.ProjectOperator;
 import ed.inf.adbs.lightdb.operators.ScanOperator;
 import ed.inf.adbs.lightdb.operators.SelectOperator;
@@ -42,13 +40,30 @@ public class LightDB {
 
 		Catalog.LoadSchema("samples\\db");
 		//TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
+
 		try {
-			Statement statement = CCJSqlParserUtil.parse("SELECT Boats.D,Boats.F FROM Boats where 1=1");
+			Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Boats B,Boats A where B.D!=101");
+			Select select = (Select) statement;
+			// PlainSelect plain = (PlainSelect) select.getSelectBody();
 			InterpreterHandler.interpret(statement);
 		} catch (JSQLParserException e) {
 			Logger logger = Logger.getGlobal();
 			logger.severe(e.toString());
 		}
+		// Map<String, String> condition = new HashMap<>();
+		// condition.put("leftOp", "Sailors.A");
+		// condition.put("rightOp", "Reserves.G");
+		// condition.put("op", "<=");
+		// ScanOperator left = new ScanOperator("Sailors");
+		// ScanOperator right = new ScanOperator("Reserves");
+		// JoinOperator joinOperator = new JoinOperator(condition, left, right);
+		// while (true) {
+		// 	int[] temp = joinOperator.getNextTuple();
+		// 	if (temp == null)
+		// 		break;
+		// 	else
+		// 		System.out.println(Arrays.toString(temp));
+		// }
 	}
 
 	/**
