@@ -12,7 +12,7 @@ public class JoinOperator extends Operator{
     private int[] leftTupleBuffer;
 
     public JoinOperator(Map<String, String> condition, Operator leftChild, Operator rightChild) {
-        this.condition = condition;//TODO:如果map.get("op")是空的话，那就说明是 cross product
+        this.condition = condition;
         this.leftChild = leftChild;
         this.rightChild = rightChild;
     }
@@ -34,7 +34,7 @@ public class JoinOperator extends Operator{
         int[] result = null;
         List<String> leftColumns = Arrays.asList(leftChild.getColumnInfo());
         List<String> rightColumns = Arrays.asList(rightChild.getColumnInfo());
-        if (condition!=null) {
+        if (condition!=null) {// If condition is null, then this is a cross product
 
             int leftIndex = leftColumns.indexOf(condition.get("leftOp"));
             int rightIndex = rightColumns.indexOf(condition.get("rightOp"));

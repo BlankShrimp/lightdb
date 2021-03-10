@@ -36,20 +36,18 @@ public class LightDB {
 		String inputFile = args[1];
 		String outputFile = args[2];
 
-		Catalog.LoadSchema("samples\\db");
-		//TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
 
 		try {
-			Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Sailors S,Reserves R where Reserves.G=Sailors.A");
-			Select select = (Select) statement;
-			PlainSelect plain = (PlainSelect) select.getSelectBody();
-			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-			System.out.println(plain.getFromItem().toString());
-			List<Join> tables = plain.getJoins();
-			for (Join t: tables) {
-				System.out.println(t.toString());
-			}
-			// InterpreterHandler.interpret(statement);
+			Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Reserves R,Sailors S where R.G=S.A and R.H>=104");
+			// Select select = (Select) statement;
+			// PlainSelect plain = (PlainSelect) select.getSelectBody();
+			// TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+			// System.out.println(plain.getFromItem().getAlias().toString());
+			// List<Join> tables = plain.getJoins();
+			// for (Join t: tables) {
+			// 	System.out.println(t.toString());
+			// }
+			InterpreterHandler.interpret(statement);
 		} catch (JSQLParserException e) {
 			Logger logger = Logger.getGlobal();
 			logger.severe(e.toString());

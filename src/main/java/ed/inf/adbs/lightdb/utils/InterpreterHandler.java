@@ -34,13 +34,33 @@ public class InterpreterHandler {
                 Select select = (Select) statement;
                 PlainSelect plain = (PlainSelect) select.getSelectBody();
 
+                // Aliases is handled before anything else.
+                Catalog.handleAliases(plain);
+                Catalog.LoadSchema("samples\\db");
+                //TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
+                // If aliases exists, then each appearance should use aliases
+                String fromItem =
+                        plain.getFromItem().toString().contains(" ")
+                                ? plain.getFromItem().toString().split(" ")[1]
+                                : plain.getFromItem().toString();
+                List<String> joinList = new ArrayList<>();
+                if (plain.getJoins() != null) {
+                    for (Join join: plain.getJoins()) {
+                        joinList.add(join.toString().contains(" ")
+                                ? join.toString().split(" ")[1]
+                                : join.toString());
+                    }
+                }
+
                 // First, get select items and where expression (if exists) from statement.
                 List<SelectItem> selectItems = plain.getSelectItems();
                 // Parse the order of output columns and stored for later used.
                 String[] columnOrder;
                 if (selectItems.get(0).toString().equals("*")) {
                     TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-                    List<String> tables = tablesNamesFinder.getTableList(statement);
+                    List<String> tables = new ArrayList<>();
+                    tables.add(fromItem);
+                    tables.addAll(joinList);
                     List<String> orderedColumns = new ArrayList<>();
                     for (String table: tables) {
                         orderedColumns.addAll(Arrays.asList(Catalog.getColumnsIndex(table)));
@@ -53,25 +73,21 @@ public class InterpreterHandler {
                     }
                 }
                 if (plain.getWhere()==null) {
-                    if (plain.getJoins()==null) {
+                    if (joinList.isEmpty()) {
                         // Handle simply scanning condition.
-                        ScanOperator scanOperator = new ScanOperator(plain.getFromItem().toString());
+                        ScanOperator scanOperator = new ScanOperator(fromItem);
                         if (selectItems.get(0).toString().equals("*")) {
                             writeToFile(scanOperator, columnOrder);
                         } else {
                             // Handle scanning but with projection.
-                            //TODO: 这里需要注意重命名
                             ProjectOperator projectOperator = new ProjectOperator(selectItems, scanOperator);
                             writeToFile(projectOperator, columnOrder);
                         }
                     } else {// With joins but without WHERE, inferring simply cross product of all tables.
-                        List<String> joiningTables = new ArrayList<>();
-                        for (Join join: plain.getJoins()) {
-                            joiningTables.add(join.toString());
-                        }
+                        List<String> joiningTables = new ArrayList<>(joinList);
                         // Cascade all join operators by recursive calling
                         JoinOperator highestOperator = new JoinOperator(null,
-                                new ScanOperator(plain.getFromItem().toString()),
+                                new ScanOperator(fromItem),
                                 new ScanOperator(joiningTables.get(0)));
                         for (int i=1; i<joiningTables.size();i++) {
                             highestOperator =  new JoinOperator(null,
@@ -82,7 +98,6 @@ public class InterpreterHandler {
                             writeToFile(highestOperator, columnOrder);
                         } else {
                             // Handle scanning but with projection.
-                            //TODO:这里需要注意不是所有where clause都是标准的列名（比如Boats.R可能会以R）出现
                             ProjectOperator projectOperator = new ProjectOperator(selectItems, highestOperator);
                             writeToFile(projectOperator, columnOrder);
                         }
@@ -128,8 +143,8 @@ public class InterpreterHandler {
                     }
 
                     Operator targetOperator;
-                    if (plain.getJoins()==null) {
-                        targetOperator = new SelectOperator(expressions, new ScanOperator(plain.getFromItem().toString()));
+                    if (joinList.isEmpty()) {
+                        targetOperator = new SelectOperator(expressions, new ScanOperator(fromItem));
                     } else {
                         /* Because there is a case when tables appearing in FROM might not appear in WHERE,
                          * which means we should maintain another list for all tables in FROM.
@@ -168,9 +183,9 @@ public class InterpreterHandler {
                         List<String> joiningTables = new ArrayList<>();
                         List<Operator> joiningOperators = new ArrayList<>();
                         // Different from simply cascading above, I added from item to the list.
-                        joiningTables.add("|"+plain.getFromItem().toString()+"|");
-                        for (Join join: plain.getJoins()) {
-                            joiningTables.add("|"+join.toString()+"|");
+                        joiningTables.add("|"+fromItem+"|");
+                        for (String join: joinList) {
+                            joiningTables.add("|"+join+"|");
                         }
                         // Step2
                         for (String table: joiningTables) {
@@ -243,7 +258,6 @@ public class InterpreterHandler {
                         writeToFile(targetOperator, columnOrder);
                     } else {
                         // Handle scanning but with projection.
-                        //TODO:这里需要注意不是所有where clause都是标准的列名（比如Boats.R可能会以R）出现
                         ProjectOperator projectOperator = new ProjectOperator(selectItems, targetOperator);
                         writeToFile(projectOperator, columnOrder);
                     }
