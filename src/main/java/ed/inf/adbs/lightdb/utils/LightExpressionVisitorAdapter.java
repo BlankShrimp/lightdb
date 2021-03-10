@@ -14,9 +14,33 @@ public class LightExpressionVisitorAdapter extends ExpressionVisitorAdapter {
     @Override
     protected void visitBinaryExpression(BinaryExpression expression) {
         if (expression instanceof ComparisonOperator) {
+            boolean leftType = true;
+            boolean rightType = true;
             map.put("leftOp", expression.getLeftExpression().toString());
             map.put("op", expression.getStringExpression());
             map.put("rightOp", expression.getRightExpression().toString());
+
+            try {
+                Integer.parseInt(map.get("leftOp"));
+                leftType = true;
+            } catch (NumberFormatException e) {
+                leftType = false;
+            }
+            try {
+                Integer.parseInt(map.get("rightOp"));
+                rightType = true;
+            } catch (NumberFormatException e) {
+                rightType = false;
+            }
+
+            if (!leftType && !rightType)
+                map.put("type","ss");
+            else if (leftType && !rightType)
+                map.put("type","is");
+            else if (!leftType)
+                map.put("type","si");
+            else
+                map.put("type","ii");
         }
         super.visitBinaryExpression(expression);
     }

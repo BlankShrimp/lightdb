@@ -18,7 +18,6 @@ public class SelectOperator extends Operator{
     List<Map<String, String>> expressions;
     Operator childOperator;
     int[] functionArray;
-    boolean[][] refArray;
     String[] columnIndex;
 
     public SelectOperator(List<Map<String, String>> expressions, Operator childOperator){
@@ -26,7 +25,6 @@ public class SelectOperator extends Operator{
         this.childOperator = childOperator;
         this.columnIndex = getColumnInfo();
         functionArray = new int[expressions.size()];
-        refArray = new boolean[expressions.size()][2];
         // Construct function array and reference array. This step is to save cost from accessing var:expressions
         // times of times by keeping a record of all operators and whether a reference is an integer or a column.
         // By accessing function array and another switch clause, program will know what to do in @getNextTuple.
@@ -51,19 +49,6 @@ public class SelectOperator extends Operator{
                     functionArray[i] = LESSEQUAL;
                     break;
             }
-
-            try {
-                Integer.parseInt(expressions.get(i).get("leftOp"));
-                refArray[i][0] = true;
-            } catch (NumberFormatException e) {
-                refArray[i][0] = false;
-            }
-            try {
-                Integer.parseInt(expressions.get(i).get("rightOp"));
-                refArray[i][1] = true;
-            } catch (NumberFormatException e) {
-                refArray[i][1] = false;
-            }
         }
 
     }
@@ -86,37 +71,37 @@ public class SelectOperator extends Operator{
                         case EQUAL:
                             if (!distinguishEqual(expressions.get(i).get("leftOp"),
                                     expressions.get(i).get("rightOp"),
-                                    refArray[i][0],refArray[i][1], temp))
+                                    expressions.get(i).get("type"), temp))
                                 flag = false;
                             break;
                         case INEQUAL:
                             if (distinguishEqual( expressions.get(i).get("leftOp"),
-                                     expressions.get(i).get("rightOp"),
-                                    refArray[i][0],refArray[i][1], temp))
+                                    expressions.get(i).get("rightOp"),
+                                    expressions.get(i).get("type"), temp))
                                 flag = false;
                             break;
                         case GREATERTHAN:
                             if (!distinguishGreater( expressions.get(i).get("leftOp"),
-                                     expressions.get(i).get("rightOp"),
-                                    refArray[i][0],refArray[i][1], temp))
+                                    expressions.get(i).get("rightOp"),
+                                    expressions.get(i).get("type"), temp))
                                 flag = false;
                             break;
                         case LESSTHEN:
                             if (distinguishGreater( expressions.get(i).get("leftOp"),
-                                     expressions.get(i).get("rightOp"),
-                                    refArray[i][0],refArray[i][1], temp))
+                                    expressions.get(i).get("rightOp"),
+                                    expressions.get(i).get("type"), temp))
                                 flag = false;
                             break;
                         case GREATEREQUAL:
                             if (!distinguishGreaterEqual( expressions.get(i).get("leftOp"),
-                                     expressions.get(i).get("rightOp"),
-                                    refArray[i][0],refArray[i][1], temp))
+                                    expressions.get(i).get("rightOp"),
+                                    expressions.get(i).get("type"), temp))
                                 flag = false;
                             break;
                         case LESSEQUAL:
                             if (distinguishGreaterEqual( expressions.get(i).get("leftOp"),
-                                     expressions.get(i).get("rightOp"),
-                                    refArray[i][0],refArray[i][1], temp))
+                                    expressions.get(i).get("rightOp"),
+                                    expressions.get(i).get("type"), temp))
                                 flag = false;
                             break;
                     }
@@ -139,14 +124,12 @@ public class SelectOperator extends Operator{
         childOperator.reset();
     }
 
-    private boolean distinguishEqual(Object left, Object right, boolean leftType, boolean rightType, int[] tuple) {
+    private boolean distinguishEqual(Object left, Object right, String typeOfExpr, int[] tuple) {
         // I wish I could use conditional operator here, but this is not Python,
         // it does not support different types of two conditions. Sad.
-        if (!leftType && !rightType)
-            return isEqual(left.toString(), right.toString(), tuple);
-        else if (leftType && !rightType)
+        if (typeOfExpr.equals("is"))
             return isEqual(Integer.parseInt(left.toString()), right.toString(), tuple);
-        else if (!leftType)
+        else if (typeOfExpr.equals("si"))
             return isEqual(left.toString(), Integer.parseInt(right.toString()), tuple);
         else
             return isEqual(Integer.parseInt(left.toString()), Integer.parseInt(right.toString()), tuple);
@@ -176,29 +159,11 @@ public class SelectOperator extends Operator{
         return left == right;
     }
 
-    private boolean isEqual(String left, String right, int[] tuple) {
-        int indexLeft = 0;
-        while (indexLeft < columnIndex.length) {
-            if ((columnIndex[indexLeft]).equals(left))
-                break;
-            indexLeft++;
-        }
-        int indexRight = 0;
-        while (indexRight < columnIndex.length) {
-            if ((columnIndex[indexRight]).equals(right))
-                break;
-            indexRight++;
-        }
-        return tuple[indexLeft] == tuple[indexRight];
-    }
 
-
-    private boolean distinguishGreater(Object left, Object right, boolean leftType, boolean rightType, int[] tuple) {
-        if (!leftType && !rightType)
-            return isGreater(left.toString(), right.toString(), tuple);
-        else if (leftType && !rightType)
+    private boolean distinguishGreater(Object left, Object right, String typeOfExpr, int[] tuple) {
+        if (typeOfExpr.equals("is"))
             return isGreater(Integer.parseInt(left.toString()), right.toString(), tuple);
-        else if (!leftType)
+        else if (typeOfExpr.equals("si"))
             return isGreater(left.toString(), Integer.parseInt(right.toString()), tuple);
         else
             return isGreater(Integer.parseInt(left.toString()), Integer.parseInt(right.toString()), tuple);
@@ -228,29 +193,11 @@ public class SelectOperator extends Operator{
         return left > right;
     }
 
-    private boolean isGreater(String left, String right, int[] tuple) {
-        int indexLeft = 0;
-        while (indexLeft < columnIndex.length) {
-            if ((columnIndex[indexLeft]).equals(left))
-                break;
-            indexLeft++;
-        }
-        int indexRight = 0;
-        while (indexRight < columnIndex.length) {
-            if ((columnIndex[indexRight]).equals(right))
-                break;
-            indexRight++;
-        }
-        return tuple[indexLeft] > tuple[indexRight];
-    }
 
-
-    private boolean distinguishGreaterEqual(Object left, Object right, boolean leftType, boolean rightType, int[] tuple) {
-        if (!leftType && !rightType)
-            return isGreaterEqual(left.toString(), right.toString(), tuple);
-        else if (leftType && !rightType)
+    private boolean distinguishGreaterEqual(Object left, Object right, String typeOfExpr, int[] tuple) {
+        if (typeOfExpr.equals("is"))
             return isGreaterEqual(Integer.parseInt(left.toString()), right.toString(), tuple);
-        else if (!leftType)
+        else if (typeOfExpr.equals("si"))
             return isGreaterEqual(left.toString(), Integer.parseInt(right.toString()), tuple);
         else
             return isGreaterEqual(Integer.parseInt(left.toString()), Integer.parseInt(right.toString()), tuple);
@@ -278,21 +225,5 @@ public class SelectOperator extends Operator{
 
     private boolean isGreaterEqual(int left, int right, int[] tuple) {
         return left >= right;
-    }
-
-    private boolean isGreaterEqual(String left, String right, int[] tuple) {
-        int indexLeft = 0;
-        while (indexLeft < columnIndex.length) {
-            if ((columnIndex[indexLeft]).equals(left))
-                break;
-            indexLeft++;
-        }
-        int indexRight = 0;
-        while (indexRight < columnIndex.length) {
-            if ((columnIndex[indexRight]).equals(right))
-                break;
-            indexRight++;
-        }
-        return tuple[indexLeft] >= tuple[indexRight];
     }
 }
