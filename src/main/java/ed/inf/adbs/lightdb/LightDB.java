@@ -15,9 +15,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 /**
@@ -42,10 +40,16 @@ public class LightDB {
 		//TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
 
 		try {
-			Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Boats B,Boats A where B.D!=101");
+			Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Sailors S,Reserves R where Reserves.G=Sailors.A");
 			Select select = (Select) statement;
-			// PlainSelect plain = (PlainSelect) select.getSelectBody();
-			InterpreterHandler.interpret(statement);
+			PlainSelect plain = (PlainSelect) select.getSelectBody();
+			TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+			System.out.println(plain.getFromItem().toString());
+			List<Join> tables = plain.getJoins();
+			for (Join t: tables) {
+				System.out.println(t.toString());
+			}
+			// InterpreterHandler.interpret(statement);
 		} catch (JSQLParserException e) {
 			Logger logger = Logger.getGlobal();
 			logger.severe(e.toString());

@@ -22,13 +22,11 @@ public class LightExpressionVisitorAdapter extends ExpressionVisitorAdapter {
 
             try {
                 Integer.parseInt(map.get("leftOp"));
-                leftType = true;
             } catch (NumberFormatException e) {
                 leftType = false;
             }
             try {
                 Integer.parseInt(map.get("rightOp"));
-                rightType = true;
             } catch (NumberFormatException e) {
                 rightType = false;
             }
@@ -39,8 +37,31 @@ public class LightExpressionVisitorAdapter extends ExpressionVisitorAdapter {
                 map.put("type","is");
             else if (!leftType)
                 map.put("type","si");
-            else
+            else {
+                int l = Integer.parseInt(map.get("leftOp"));
+                int r = Integer.parseInt(map.get("rightOp"));
                 map.put("type","ii");
+                switch (map.get("op")) {
+                    case "=":
+                        if (l != r) map.put("type","ff");
+                        break;
+                    case "!=":
+                        if (l == r) map.put("type","ff");
+                        break;
+                    case ">":
+                        if (l < r) map.put("type","ff");
+                        break;
+                    case "<":
+                        if (l > r) map.put("type","ff");
+                        break;
+                    case ">=":
+                        if (l <= r) map.put("type","ff");
+                        break;
+                    case "<=":
+                        if (l >= r) map.put("type","ff");
+                        break;
+                }
+            }
         }
         super.visitBinaryExpression(expression);
     }
