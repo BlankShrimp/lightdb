@@ -155,13 +155,15 @@ public class InterpreterHandler {
                     if (joinList.isEmpty()) {
                         targetOperator = new SelectOperator(expressions, new ScanOperator(fromItem));
                     } else {
-                        /* Because there is a case when tables appearing in FROM might not appear in WHERE,
-                         * which means we should maintain another list for all tables in FROM.
-                         * When a table is found in WHERE, remove it from the list, and cascade joining in the end.
+                        /* The idea is to keep track on which tables have been joined and store joined operators for
+                         *     future use.
+                         * Because there is a case when tables appearing in FROM might not appear in WHERE,
+                         *     which means we should maintain another list for all tables in FROM.
+                         *     When a table is found in WHERE, remove it from the list, and cascade joining in the end.
                          *
                          * The list is specially designed that two tables can be glued together when tables are joined
-                         * together. To achieve this, the format of String will be as "|t1|t2|....|"
-                         * Another list that stores related Operators is also introduced.
+                         *     together. To achieve this, the format of String will be as "|t1|t2|....|"
+                         *     Another list that stores related Operators is also introduced.
                          *
                          * For instance, we have 'Select * From A,B,C where A.a=B.b and A.a=1', joiningTables and
                          *     joiningOperators as below
@@ -186,7 +188,7 @@ public class InterpreterHandler {
                          * 6. However, this approach would destroy the order of columns, which means we should correct
                          *     it now. This is why we stored column order at the beginning.
                          *
-                         * A detailed explanation with figure will be introduced in README.md and README.pdf
+                         * A short explanation with figure will be introduced in README.md and README.pdf
                          */
                         // Step1
                         List<String> joiningTables = new ArrayList<>();
