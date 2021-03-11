@@ -1,7 +1,5 @@
 package ed.inf.adbs.lightdb.operators;
 
-import ed.inf.adbs.lightdb.utils.Catalog;
-
 import java.util.List;
 import java.util.Map;
 

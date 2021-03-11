@@ -1,9 +1,7 @@
 package ed.inf.adbs.lightdb.utils;
 
-import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectItem;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -33,7 +31,7 @@ public class Catalog {
      */
     public static void LoadSchema(String path) {
         try {
-            FileInputStream inputStream = new FileInputStream(path+"\\schema.txt");
+            FileInputStream inputStream = new FileInputStream(path+"/schema.txt");
             pathToDB = path;
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String str;
@@ -98,7 +96,7 @@ public class Catalog {
      * @return Path to given table.
      */
     public static String getPath(String tableName) {
-        return pathToDB+"\\data\\"+aliasesToTableMap.get(tableName)+".csv";
+        return pathToDB+"/data/"+aliasesToTableMap.get(tableName)+".csv";
     }
 
     /**

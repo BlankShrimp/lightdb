@@ -1,5 +1,7 @@
 package ed.inf.adbs.lightdb;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -39,9 +41,11 @@ public class LightDB {
 
 
 		try {
-			Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Reserves R,Sailors S where R.G!=S.A Order by R.H, R.G");
-			InterpreterHandler.interpret(statement);
-		} catch (JSQLParserException e) {
+			Catalog.setWritePath(outputFile);
+			Statement statement = CCJSqlParserUtil.parse(new FileReader(inputFile));
+			// Statement statement = CCJSqlParserUtil.parse("SELECT * FROM Reserves R,Sailors S where R.G!=S.A Order by R.H, R.G");
+			InterpreterHandler.interpret(statement, databaseDir);
+		} catch (JSQLParserException | FileNotFoundException e) {
 			Logger logger = Logger.getGlobal();
 			logger.severe(e.toString());
 		}

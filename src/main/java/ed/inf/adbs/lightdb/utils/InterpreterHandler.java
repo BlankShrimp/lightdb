@@ -6,7 +6,6 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,7 +32,7 @@ public class InterpreterHandler {
      * Main function that handles all top-level interpreting logic.
      * @param statement SQL statement.
      */
-    public static void interpret(Statement statement) {
+    public static void interpret(Statement statement, String dir) {
         try {
             if (statement != null) {
                 Select select = (Select) statement;
@@ -41,8 +40,7 @@ public class InterpreterHandler {
 
                 // Aliases is handled before anything else.
                 Catalog.handleAliases(plain);
-                //TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
-                Catalog.LoadSchema("samples\\db");
+                Catalog.LoadSchema(dir);
                 // If aliases exists, then each appearance should use aliases
                 String fromItem = // A conditional operator.
                         plain.getFromItem().toString().contains(" ")
@@ -93,8 +91,7 @@ public class InterpreterHandler {
                             targetOperator = scanOperator;
                         } else {
                             // Handle scanning but with projection.
-                            ProjectOperator projectOperator = new ProjectOperator(selectItems, scanOperator);
-                            targetOperator = scanOperator;
+                            targetOperator = new ProjectOperator(selectItems, scanOperator);
                         }
                     } else {// With joins but without WHERE, inferring simply cross product of all tables.
                         List<String> joiningTables = new ArrayList<>(joinList);
@@ -300,9 +297,9 @@ public class InterpreterHandler {
         try {
             // Create file if not exists
             StringBuilder dirName = new StringBuilder();
-            String[] a = Catalog.getWritePath().split("\\\\");
+            String[] a = Catalog.getWritePath().split("/");
             for (int i = 0; i < a.length-2; i++) {
-                dirName.append(a[i]).append("\\");
+                dirName.append(a[i]).append("/");
             }
             dirName.append(a[a.length-2]);
             File dir = new File(dirName.toString());

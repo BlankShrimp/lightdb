@@ -1,7 +1,5 @@
 package ed.inf.adbs.lightdb.operators;
 
-import com.sun.deploy.util.ArrayUtil;
-import ed.inf.adbs.lightdb.utils.Catalog;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
 import java.util.Arrays;
@@ -17,8 +15,6 @@ public class ProjectOperator extends Operator{
         this.columns  =columns;
         this.childOperator = childOperator;
         this.columnArray = Arrays.asList(childOperator.getColumnInfo());
-        System.out.println(columns.toString());
-        System.out.println(columnArray.toString());
     }
 
     /**
