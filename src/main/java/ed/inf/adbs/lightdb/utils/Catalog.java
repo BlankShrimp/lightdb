@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * A util class with all static functions. This class achieves the following function:
+ * 1. Maintain all files, paths and schema.
+ * 2. Maintain and manage aliases.
+ * 3. Answer files, paths, schema and aliases data requests.
+ */
 public class Catalog {
 
     public static Map<String, String[]> schema = new HashMap<>();// TableName->(ordered ColumnName)
@@ -23,7 +29,6 @@ public class Catalog {
     private static Map<String, String> tableToAliasesMap = new HashMap<>();
 
     /**
-     * This class holds & manage all String name to integer index mapping.
      * @param path Path to database directory.
      */
     public static void LoadSchema(String path) {
@@ -46,10 +51,10 @@ public class Catalog {
         }
     }
 
-    public static void setWritePath(String input) {
-        pathToWriteFile = input;
-    }
-
+    /**
+     * Aliases is handled by keeping a mapping from BaseTable->Aliases, and a mapping Aliases->BaseTable as well.
+     * @param plain The statement.
+     */
     public static void handleAliases(PlainSelect plain) {
         // Step1: Add fromItem to aliases map
         String fromItem = plain.getFromItem().toString();
@@ -87,10 +92,27 @@ public class Catalog {
         return schema.get(aliasesToTableMap.get(tableName));
     }
 
+    /**
+     * Used delicately by ScanOperator that parse a table name to file path.
+     * @param tableName String table name, must be aliases (if exists).
+     * @return Path to given table.
+     */
     public static String getPath(String tableName) {
         return pathToDB+"\\data\\"+aliasesToTableMap.get(tableName)+".csv";
     }
 
+    /**
+     * Update path to output file.
+     * @param input Path.
+     */
+    public static void setWritePath(String input) {
+        pathToWriteFile = input;
+    }
+
+    /**
+     * A getter for output file.
+     * @return Path to output file.
+     */
     public static String getWritePath() {
         return pathToWriteFile;
     }

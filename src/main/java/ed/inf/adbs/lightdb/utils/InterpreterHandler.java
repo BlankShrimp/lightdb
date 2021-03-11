@@ -1,6 +1,5 @@
 package ed.inf.adbs.lightdb.utils;
 
-import com.sun.deploy.util.ArrayUtil;
 import ed.inf.adbs.lightdb.operators.*;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
@@ -19,6 +18,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+
+/**
+ * This is a util class with all static functions that generate query plan, control the flow and write the result.
+ * Instead of putting everything into DeParser or Visitor, I chose a thin Deparser and Visitor for the following reasons:
+ * 1. DeParser (or Visitor Adapter) only does its job to extract data from statement, there's no reason for it to get an
+ *     overview of the flow.
+ * 2. Comparing to distribute the planing process into two classes, keeping everything together seems a better option as
+ *     long as you has clear structure.
+ */
 public class InterpreterHandler {
 
     /**
@@ -36,7 +44,7 @@ public class InterpreterHandler {
                 //TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
                 Catalog.LoadSchema("samples\\db");
                 // If aliases exists, then each appearance should use aliases
-                String fromItem =
+                String fromItem = // A conditional operator.
                         plain.getFromItem().toString().contains(" ")
                                 ? plain.getFromItem().toString().split(" ")[1]
                                 : plain.getFromItem().toString();
@@ -54,7 +62,6 @@ public class InterpreterHandler {
                 // Parse the order of output columns and stored for later used.
                 String[] columnOrder;
                 if (selectItems.get(0).toString().equals("*")) {
-                    TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
                     List<String> tables = new ArrayList<>();
                     tables.add(fromItem);
                     tables.addAll(joinList);
@@ -69,7 +76,14 @@ public class InterpreterHandler {
                         columnOrder[i] = selectItems.get(i).toString();
                     }
                 }
-                // Here start the main plan logic
+                /* Here start the main plan logic:
+                 * Create targetOperator, this is the root.
+                 * If no WHERE: then must be no selection. We only need to do simple cascade Join (if exists), simple
+                 *     selection (with or without projection).
+                 * If has WHERE: then we should first parse the WHERE expression, then assign selection. Then check if
+                 *     join exists, if yes, use a special design mentioned below to plan the joins.
+                 * Finally, before calling targetOperator, find if ORDER BY and DISTINCT exists. If yes, handle them.
+                 */
                 Operator targetOperator;
                 if (plain.getWhere()==null) {
                     if (joinList.isEmpty()) {
@@ -140,6 +154,7 @@ public class InterpreterHandler {
                             selectionExpressions.add(map);
                     }
 
+                    // Handle joins.
                     if (joinList.isEmpty()) {
                         targetOperator = new SelectOperator(expressions, new ScanOperator(fromItem));
                     } else {
@@ -298,6 +313,7 @@ public class InterpreterHandler {
                 file.createNewFile();
 
             if (operator!=null) {
+                // Re-order columns to match the requirement.
                 int[] tuple = operator.getNextTuple();
                 String[] tupleOrder = operator.getColumnInfo();
                 int[] mapping = new int[tupleOrder.length];
@@ -309,6 +325,7 @@ public class InterpreterHandler {
                         }
                     }
                 }
+                // Write
                 BufferedWriter writer = new BufferedWriter(new FileWriter(Catalog.getWritePath()));
                 while (tuple != null) {
                     StringBuilder temp = new StringBuilder();

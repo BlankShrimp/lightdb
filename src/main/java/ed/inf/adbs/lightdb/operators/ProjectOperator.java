@@ -21,6 +21,10 @@ public class ProjectOperator extends Operator{
         System.out.println(columnArray.toString());
     }
 
+    /**
+     * Emit column names and order.
+     * @return An array of column names.
+     */
     @Override
     public String[] getColumnInfo() {
         String[] result = new String[columns.size()+1];
@@ -31,6 +35,10 @@ public class ProjectOperator extends Operator{
         return result;
     }
 
+    /**
+     * Emit a tuple with selected columns only.
+     * @return An array of int referring to one tuple.
+     */
     @Override
     public int[] getNextTuple() {
         int[] temp = childOperator.getNextTuple();
@@ -44,6 +52,9 @@ public class ProjectOperator extends Operator{
         return null;
     }
 
+    /**
+     * Reset the pointer to the beginning of the file.
+     */
     @Override
     public void reset() {
         childOperator.reset();

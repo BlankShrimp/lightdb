@@ -24,6 +24,10 @@ public class ScanOperator extends Operator{
         }
     }
 
+    /**
+     * Emit column names and order.
+     * @return An array of column names.
+     */
     @Override
     public String[] getColumnInfo() {
         return Catalog.getColumnsIndex(tableName);
@@ -32,7 +36,7 @@ public class ScanOperator extends Operator{
     /**
      * Emit next line of a given file. Calling this function will pull the
      * next line to the caller.
-     * @return An array of String referring to one tuple.
+     * @return An array of int referring to one tuple.
      */
     @Override
     public int[] getNextTuple() {
@@ -71,7 +75,7 @@ public class ScanOperator extends Operator{
     /**
      * This function should be called before exiting program.
      */
-    public void closeFile() {
+    private void closeFile() {
         try {
             if (fis != null) {
                 fis.close();

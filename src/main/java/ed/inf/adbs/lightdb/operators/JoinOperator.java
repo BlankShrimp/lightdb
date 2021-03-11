@@ -18,6 +18,10 @@ public class JoinOperator extends Operator{
     }
 
 
+    /**
+     * Emit column names and order.
+     * @return An array of column names.
+     */
     @Override
     public String[] getColumnInfo() {
         String[] leftInfo = leftChild.getColumnInfo();
@@ -29,6 +33,11 @@ public class JoinOperator extends Operator{
         return leftInfo;
     }
 
+    /**
+     * Emit a tuple that joined two tuple with/without a condition.
+     * The code seems lengthy but the switch clause takes a lot of space, and with/without a condition were written separately.
+     * @return An array of int referring to one tuple.
+     */
     @Override
     public int[] getNextTuple() {
         int[] result = null;
@@ -143,6 +152,9 @@ public class JoinOperator extends Operator{
         return result;
     }
 
+    /**
+     * Reset the pointer to the beginning of the file.
+     */
     @Override
     public void reset() {
         leftChild.reset();

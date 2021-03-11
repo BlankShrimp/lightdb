@@ -11,11 +11,21 @@ public class DuplicateEliminationOperator extends Operator{
         this.childOperator = childOperator;
     }
 
+    /**
+     * Emit column names and order.
+     * @return An array of column names.
+     */
     @Override
     public String[] getColumnInfo() {
         return childOperator.getColumnInfo();
     }
 
+    /**
+     * Emit a tuple guaranteed no duplicate.
+     * The strategy is to store the previous tuple to a buffer, compare with the next tuple thanks to the fact that
+     * the supplied tuple is sorted.
+     * @return An array of int referring to one tuple.
+     */
     @Override
     public int[] getNextTuple() {
         if (buffer==null) {
@@ -34,6 +44,9 @@ public class DuplicateEliminationOperator extends Operator{
         }
     }
 
+    /**
+     * Reset the pointer to the beginning of the file.
+     */
     @Override
     public void reset() {
         childOperator.reset();

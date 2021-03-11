@@ -41,6 +41,11 @@ public class LightExpressionVisitorAdapter extends ExpressionVisitorAdapter {
                 int l = Integer.parseInt(map.get("leftOp"));
                 int r = Integer.parseInt(map.get("rightOp"));
                 map.put("type","ii");
+                /* As mentioned in the InterpreterHandler, this class only does its job to extract data from WHERE.
+                 * However, one thing can be done here is to test expressions with no column refs, because they're
+                 * always true or always false. If true, we can simply ignore the expression; if false, then simply
+                 * output null.
+                 */
                 switch (map.get("op")) {
                     case "=":
                         if (l != r) map.put("type","ff");

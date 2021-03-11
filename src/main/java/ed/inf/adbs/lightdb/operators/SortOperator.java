@@ -29,6 +29,10 @@ public class SortOperator extends Operator{
         buffer.sort(new TupleComparator(columnPriority));
     }
 
+    /**
+     * Emit column names and order.
+     * @return An array of column names.
+     */
     @Override
     public String[] getColumnInfo() {
         return childOperator.getColumnInfo();
@@ -42,11 +46,13 @@ public class SortOperator extends Operator{
         return buffer.get(index);
     }
 
+    /**
+     * Reset the pointer to the beginning of the file.
+     */
     @Override
     public void reset() {
         childOperator.reset();
     }
-
 }
 
 class TupleComparator implements Comparator<int[]> {

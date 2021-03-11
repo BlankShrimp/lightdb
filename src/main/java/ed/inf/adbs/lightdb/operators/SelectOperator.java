@@ -20,6 +20,11 @@ public class SelectOperator extends Operator{
     private int[] functionArray;
     private String[] columnIndex;
 
+    /**
+     * It is worth mentioned that this select operator can handle multiple expressions at one call.
+     * @param expressions A list of expressions to be checked.
+     * @param childOperator Tuple supplier.
+     */
     public SelectOperator(List<Map<String, String>> expressions, Operator childOperator){
         this.expressions = expressions;
         this.childOperator = childOperator;
@@ -53,11 +58,19 @@ public class SelectOperator extends Operator{
 
     }
 
+    /**
+     * Emit column names and order.
+     * @return An array of column names.
+     */
     @Override
     public String[] getColumnInfo() {
         return childOperator.getColumnInfo();
     }
 
+    /**
+     * Emit a tuple if it matches all criteria given.
+     * @return An array of int referring to one tuple.
+     */
     @Override
     public int[] getNextTuple() {
         int[] result;
@@ -119,11 +132,23 @@ public class SelectOperator extends Operator{
         return result;
     }
 
+    /**
+     * Reset the pointer to the beginning of the file.
+     */
     @Override
     public void reset() {
         childOperator.reset();
     }
 
+    /**
+     * A distinguisher is to call different functions depending on different operators thanks to the fact that Java
+     * is an old-school strong typing language such that I can't fit different types of objects in one function.
+     * @param left Left operator.
+     * @param right Right operator.
+     * @param typeOfExpr One of '=' '!=' '>' '<' '>=' '<='.
+     * @param tuple Pending tuple.
+     * @return The selection result.
+     */
     private boolean distinguishEqual(Object left, Object right, String typeOfExpr, int[] tuple) {
         // I wish I could use conditional operator here, but this is not Python,
         // it does not support different types of two conditions. Sad.

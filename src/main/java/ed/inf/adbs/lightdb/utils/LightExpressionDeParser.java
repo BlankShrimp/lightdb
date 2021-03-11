@@ -30,6 +30,11 @@ public class LightExpressionDeParser extends ExpressionDeParser {
         visitBinaryExpr(andExpression, "AND");
     }
 
+    /**
+     * Handle "AND" operators. Parse expressions into usable maps.
+     * @param binaryExpression Binary expression such as A AND B
+     * @param operator Operator in the middle.
+     */
     private void visitBinaryExpr(BinaryExpression binaryExpression, String operator) {
         Map<String, Object> map = new HashMap<>();
         if (!(binaryExpression.getLeftExpression() instanceof OrExpression)
@@ -52,6 +57,10 @@ public class LightExpressionDeParser extends ExpressionDeParser {
         list.add(map);
     }
 
+    /**
+     * Get the list of all parsed readable expressions.
+     * @return List of expressions.
+     */
     public List<String> getList() {
         if (!called) {
             for(int i = 0; i<list.size();i++) {
