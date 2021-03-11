@@ -15,10 +15,10 @@ public class SelectOperator extends Operator{
     private static final int LESSEQUAL = 5;
 
 
-    List<Map<String, String>> expressions;
-    Operator childOperator;
-    int[] functionArray;
-    String[] columnIndex;
+    private List<Map<String, String>> expressions;
+    private Operator childOperator;
+    private int[] functionArray;
+    private String[] columnIndex;
 
     public SelectOperator(List<Map<String, String>> expressions, Operator childOperator){
         this.expressions = expressions;

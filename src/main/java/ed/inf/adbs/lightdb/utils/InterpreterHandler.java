@@ -256,7 +256,7 @@ public class InterpreterHandler {
                         targetOperator = new ProjectOperator(selectItems, targetOperator);
                     }
                 }
-                // Finally, before calling writter, we should check if ORDER BY exists.
+                // Finally, before calling writer, we should check if ORDER BY exists.
                 if (plain.getOrderByElements()!=null) {
                     List<OrderByElement> elements = plain.getOrderByElements();
                     String[] columns = new String[elements.size()];
@@ -265,6 +265,9 @@ public class InterpreterHandler {
                     }
                     targetOperator = new SortOperator(columns, targetOperator);
                 }
+                // Final-finally, check DISTINCT before calling writer.
+                if (plain.getDistinct()!= null)
+                    targetOperator = new DuplicateEliminationOperator(targetOperator);
                 writeToFile(targetOperator, columnOrder);
             }
         } catch (JSQLParserException e) {
