@@ -23,10 +23,10 @@ public class ProjectOperator extends Operator{
      */
     @Override
     public String[] getColumnInfo() {
-        String[] result = new String[columns.size()+1];
+        String[] result = new String[columns.size()];
         result[0] = columnArray.get(0);
-        for (int i = 1; i < result.length; i++) {
-            result[i] = columns.get(i-1).toString();
+        for (int i = 0; i < result.length; i++) {
+            result[i] = columns.get(i).toString();
         }
         return result;
     }
@@ -41,7 +41,7 @@ public class ProjectOperator extends Operator{
         if (temp!=null) {
             int[] result = new int[columns.size()];
             for (int i=0; i<columns.size(); i++) {
-                result[i] = temp[columnArray.indexOf(columns.get(i).toString())-1];
+                result[i] = temp[columnArray.indexOf(columns.get(i).toString())];
             }
             return result;
         }

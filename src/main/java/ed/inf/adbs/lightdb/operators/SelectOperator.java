@@ -98,7 +98,7 @@ public class SelectOperator extends Operator{
                                 flag = false;
                             break;
                         case LESSTHEN:
-                            if (distinguishGreater( expressions.get(i).get("leftOp"),
+                            if (!distinguishLess( expressions.get(i).get("leftOp"),
                                     expressions.get(i).get("rightOp"),
                                     expressions.get(i).get("type"), temp))
                                 flag = false;
@@ -110,7 +110,7 @@ public class SelectOperator extends Operator{
                                 flag = false;
                             break;
                         case LESSEQUAL:
-                            if (distinguishGreaterEqual( expressions.get(i).get("leftOp"),
+                            if (!distinguishLessEqual( expressions.get(i).get("leftOp"),
                                     expressions.get(i).get("rightOp"),
                                     expressions.get(i).get("type"), temp))
                                 flag = false;
@@ -308,5 +308,113 @@ public class SelectOperator extends Operator{
             indexRight++;
         }
         return tuple[indexLeft] >= tuple[indexRight];
+    }
+
+
+    private boolean distinguishLess(Object left, Object right, String typeOfExpr, int[] tuple) {
+        switch (typeOfExpr) {
+            case "ss":
+                return isLess(left.toString(), right.toString(), tuple);
+            case "is":
+                return isLess(Integer.parseInt(left.toString()), right.toString(), tuple);
+            case "si":
+                return isLess(left.toString(), Integer.parseInt(right.toString()), tuple);
+            default:
+                return isLess(Integer.parseInt(left.toString()), Integer.parseInt(right.toString()), tuple);
+        }
+    }
+
+    private boolean isLess(String left, int right, int[] tuple) {
+        int index = 0;
+        while (index < columnIndex.length) {
+            if ((columnIndex[index]).equals(left))
+                break;
+            index++;
+        }
+        return tuple[index] < right;
+    }
+
+    private boolean isLess(int left, String right, int[] tuple) {
+        int index = 0;
+        while (index < columnIndex.length) {
+            if ((columnIndex[index]).equals(right))
+                break;
+            index++;
+        }
+        return left < tuple[index];
+    }
+
+    private boolean isLess(int left, int right, int[] tuple) {
+        return left < right;
+    }
+
+    private boolean isLess(String left, String right, int[] tuple) {
+        int indexLeft = 0;
+        while (indexLeft < columnIndex.length) {
+            if ((columnIndex[indexLeft]).equals(left))
+                break;
+            indexLeft++;
+        }
+        int indexRight = 0;
+        while (indexRight < columnIndex.length) {
+            if ((columnIndex[indexRight]).equals(right))
+                break;
+            indexRight++;
+        }
+        return tuple[indexLeft] < tuple[indexRight];
+    }
+
+
+    private boolean distinguishLessEqual(Object left, Object right, String typeOfExpr, int[] tuple) {
+        switch (typeOfExpr) {
+            case "ss":
+                return isLessEqual(left.toString(), right.toString(), tuple);
+            case "is":
+                return isLessEqual(Integer.parseInt(left.toString()), right.toString(), tuple);
+            case "si":
+                return isLessEqual(left.toString(), Integer.parseInt(right.toString()), tuple);
+            default:
+                return isLessEqual(Integer.parseInt(left.toString()), Integer.parseInt(right.toString()), tuple);
+        }
+    }
+
+    private boolean isLessEqual(String left, int right, int[] tuple) {
+        int index = 0;
+        while (index < columnIndex.length) {
+            if ((columnIndex[index]).equals(left))
+                break;
+            index++;
+        }
+        return tuple[index] <= right;
+    }
+
+    private boolean isLessEqual(int left, String right, int[] tuple) {
+        int index = 0;
+        while (index < columnIndex.length) {
+            if ((columnIndex[index]).equals(right))
+                break;
+            index++;
+        }
+        return left <= tuple[index];
+    }
+
+    private boolean isLessEqual(int left, int right, int[] tuple) {
+        return left <= right;
+    }
+
+    private boolean isLessEqual(String left, String right, int[] tuple) {
+        int indexLeft = 0;
+        while (indexLeft < columnIndex.length) {
+            if ((columnIndex[indexLeft]).equals(left))
+                break;
+            indexLeft++;
+        }
+        int indexRight = 0;
+        while (indexRight < columnIndex.length) {
+            if ((columnIndex[indexRight]).equals(right))
+                break;
+            indexRight++;
+        }
+        return tuple[indexLeft] <= tuple[indexRight];
     }
 }
