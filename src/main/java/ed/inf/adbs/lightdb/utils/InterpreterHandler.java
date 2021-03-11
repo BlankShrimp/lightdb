@@ -6,10 +6,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.io.BufferedWriter;
@@ -36,8 +33,8 @@ public class InterpreterHandler {
 
                 // Aliases is handled before anything else.
                 Catalog.handleAliases(plain);
-                Catalog.LoadSchema("samples\\db");
                 //TODO: 记得用 CCJSqlParserUtil.parse(new FileReader(filename)) 取代直接输入SQL，并把catch删了，把Handler的param
+                Catalog.LoadSchema("samples\\db");
                 // If aliases exists, then each appearance should use aliases
                 String fromItem =
                         plain.getFromItem().toString().contains(" ")
@@ -72,16 +69,18 @@ public class InterpreterHandler {
                         columnOrder[i] = selectItems.get(i).toString();
                     }
                 }
+                // Here start the main plan logic
+                Operator targetOperator;
                 if (plain.getWhere()==null) {
                     if (joinList.isEmpty()) {
                         // Handle simply scanning condition.
                         ScanOperator scanOperator = new ScanOperator(fromItem);
                         if (selectItems.get(0).toString().equals("*")) {
-                            writeToFile(scanOperator, columnOrder);
+                            targetOperator = scanOperator;
                         } else {
                             // Handle scanning but with projection.
                             ProjectOperator projectOperator = new ProjectOperator(selectItems, scanOperator);
-                            writeToFile(projectOperator, columnOrder);
+                            targetOperator = scanOperator;
                         }
                     } else {// With joins but without WHERE, inferring simply cross product of all tables.
                         List<String> joiningTables = new ArrayList<>(joinList);
@@ -95,11 +94,10 @@ public class InterpreterHandler {
                                     new ScanOperator(joiningTables.get(i)));
                         }
                         if (selectItems.get(0).toString().equals("*")) {
-                            writeToFile(highestOperator, columnOrder);
+                            targetOperator = highestOperator;
                         } else {
                             // Handle scanning but with projection.
-                            ProjectOperator projectOperator = new ProjectOperator(selectItems, highestOperator);
-                            writeToFile(projectOperator, columnOrder);
+                            targetOperator = new ProjectOperator(selectItems, highestOperator);
                         }
                     }
                 } else {
@@ -142,7 +140,6 @@ public class InterpreterHandler {
                             selectionExpressions.add(map);
                     }
 
-                    Operator targetOperator;
                     if (joinList.isEmpty()) {
                         targetOperator = new SelectOperator(expressions, new ScanOperator(fromItem));
                     } else {
@@ -254,14 +251,21 @@ public class InterpreterHandler {
                             highestOperator = joiningOperators.get(0);
                         targetOperator = highestOperator;
                     }
-                    if (selectItems.get(0).toString().equals("*")) {
-                        writeToFile(targetOperator, columnOrder);
-                    } else {
+                    if (!selectItems.get(0).toString().equals("*")) {
                         // Handle scanning but with projection.
-                        ProjectOperator projectOperator = new ProjectOperator(selectItems, targetOperator);
-                        writeToFile(projectOperator, columnOrder);
+                        targetOperator = new ProjectOperator(selectItems, targetOperator);
                     }
                 }
+                // Finally, before calling writter, we should check if ORDER BY exists.
+                if (plain.getOrderByElements()!=null) {
+                    List<OrderByElement> elements = plain.getOrderByElements();
+                    String[] columns = new String[elements.size()];
+                    for (int i = 0; i < elements.size(); i++) {
+                        columns[i] = elements.get(i).toString();
+                    }
+                    targetOperator = new SortOperator(columns, targetOperator);
+                }
+                writeToFile(targetOperator, columnOrder);
             }
         } catch (JSQLParserException e) {
             System.err.println("Exception occurred during parsing");
