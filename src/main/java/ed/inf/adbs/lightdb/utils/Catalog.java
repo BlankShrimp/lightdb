@@ -1,7 +1,9 @@
 package ed.inf.adbs.lightdb.utils;
 
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectItem;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -24,7 +26,6 @@ public class Catalog {
     private static String pathToDB;
     private static String pathToWriteFile = "samples\\output\\output.csv";
     private static Map<String, String> aliasesToTableMap = new HashMap<>();
-    private static Map<String, String> tableToAliasesMap = new HashMap<>();
 
     /**
      * @param path Path to database directory.
@@ -39,7 +40,7 @@ public class Catalog {
                 String[] strings = str.split(" ");
                 String[] temp = new String[strings.length-1];
                 for (int i = 1; i < strings.length; i++) {
-                    temp[i-1]=tableToAliasesMap.get(strings[0])+"."+strings[i];
+                    temp[i-1]=strings[i];
                 }
                 schema.put(strings[0], temp);
             }
@@ -58,10 +59,8 @@ public class Catalog {
         String fromItem = plain.getFromItem().toString();
         if (fromItem.contains(" ")) {
             aliasesToTableMap.put(fromItem.split(" ")[1], fromItem.split(" ")[0]);
-            tableToAliasesMap.put(fromItem.split(" ")[0], fromItem.split(" ")[1]);
         } else {
             aliasesToTableMap.put(fromItem, fromItem);
-            tableToAliasesMap.put(fromItem, fromItem);
         }
         // Step2: Add joinItems to aliases map (if exist)
         List<String> joinList = new ArrayList<>();
@@ -70,11 +69,9 @@ public class Catalog {
             for (Join join: joins) {
                 if (join.toString().contains(" ")) {
                     aliasesToTableMap.put(join.toString().split(" ")[1], join.toString().split(" ")[0]);
-                    tableToAliasesMap.put(join.toString().split(" ")[0], join.toString().split(" ")[1]);
                     joinList.add(join.toString().split(" ")[1]);
                 } else {
                     aliasesToTableMap.put(join.toString(), join.toString());
-                    tableToAliasesMap.put(join.toString(), join.toString());
                     joinList.add(join.toString());
                 }
             }
@@ -87,7 +84,12 @@ public class Catalog {
      * @return Array of column name.
      */
     public static String[] getColumnsIndex(String tableName) {
-        return schema.get(aliasesToTableMap.get(tableName));
+        String[] tempSchema = schema.get(aliasesToTableMap.get(tableName));
+        String[] result = new String[tempSchema.length];
+        for (int i = 0; i < tempSchema.length; i++) {
+            result[i] = tableName + "." + tempSchema[i];
+        }
+        return result;
     }
 
     /**
